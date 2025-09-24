@@ -257,15 +257,14 @@
         };
       }, [inputs]);
 
-     // Uniform 3-column row: label | input | units
-const Field = ({ label, suffix, step = 0.01, min = 0, value, onChange }) => (
+     const Field = ({ label, suffix, step = 0.01, min = 0, value, onChange }) => (
   <label
     className="
-      grid items-center gap-3 py-2
-      [grid-template-columns:1.15fr_10.5rem_8rem]
+      grid items-center gap-2 py-1
+      [grid-template-columns:1fr_8rem_5rem]
     "
   >
-    <span className="text-sm text-slate-600 leading-snug">{label}</span>
+    <span className="text-sm text-slate-600">{label}</span>
 
     <input
       type="number"
@@ -273,13 +272,11 @@ const Field = ({ label, suffix, step = 0.01, min = 0, value, onChange }) => (
       min={min}
       value={Number.isFinite(value) ? value : ''}
       onChange={(e) => onChange(parseFloat(e.target.value))}
-      className="h-10 w-full rounded-md border border-slate-300 px-2 text-right"
+      className="h-9 w-full rounded-md border border-slate-300 px-2 text-right"
     />
 
     {suffix && (
-      <span className="text-right text-xs text-slate-500 whitespace-nowrap">
-        {suffix}
-      </span>
+      <span className="text-xs text-slate-500 text-left">{suffix}</span>
     )}
   </label>
 );
