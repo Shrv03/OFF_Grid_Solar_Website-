@@ -257,15 +257,36 @@
         };
       }, [inputs]);
 
-      const Field = ({label,suffix,step=0.01,min=0,value,onChange}) => (
-        <label className="flex items-center justify-between gap-3 py-1">
-          <span className="text-sm text-slate-600">{label}</span>
-          <input type="number" step={step} min={min} value={Number.isFinite(value)?value:''}
-            onChange={e=>onChange(parseFloat(e.target.value))}
-            className="w-32 rounded-md border border-slate-300 px-2 py-1 text-right" />
-          {suffix && <span className="w-16 text-xs text-slate-500">{suffix}</span>}
-        </label>
-      );
+      // ⬇️ Replace your existing Field with this version
+const Field = ({ label, suffix, step = 0.01, min = 0, value, onChange }) => (
+  <label
+    className="
+      grid items-center gap-3 py-1
+      [grid-template-columns:1fr_10rem_5.5rem]
+    "
+  >
+    <span className="text-sm text-slate-600">{label}</span>
+
+    <input
+      type="number"
+      step={step}
+      min={min}
+      value={Number.isFinite(value) ? value : ''}
+      onChange={(e) => onChange(parseFloat(e.target.value))}
+      className="
+        h-10 w-full rounded-md border border-slate-300
+        px-2 text-right
+      "
+    />
+
+    {suffix && (
+      <span className="text-right text-xs text-slate-500">
+        {suffix}
+      </span>
+    )}
+  </label>
+);
+
 
       const Card = ({title,children}) => (
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
