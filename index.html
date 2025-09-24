@@ -258,7 +258,7 @@
       }, [inputs]);
 
      const Field = ({label,suffix,step=0.01,min=0,value,onChange}) => (
-        %<label className="flex items-center justify-between gap-3 py-1">
+        <label className="flex items-center justify-between gap-3 py-1">
           <span className="text-sm text-slate-600">{label}</span>
           <input type="number" step={step} min={min} value={Number.isFinite(value)?value:''}
             onChange={e=>onChange(parseFloat(e.target.value))}
