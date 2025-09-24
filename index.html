@@ -147,8 +147,14 @@
         estimates net-metering bills. Enter your array size, production, load, and cost assumptions; then test buy/sell
         rates to see how policy affects your annual bill. Outputs include on-grid and off-grid LCOE, a cost ratio, CAPEX
         estimates, import/export energy, and your bill or credit.
+        <br />
+        <a href="https://docs.google.com/spreadsheets/d/1jTrXFmLzXCy0TXIiw_XwlHJ2nB2sb2O998to0cD4x3Q/edit?usp=sharing"
+           target="_blank" rel="noopener" class="underline text-sky-700 hover:text-sky-900">
+          View the underlying assumptions sheet →
+        </a>
       </p>
       <div id="tool-root"></div>
+      <p class="text-xs text-slate-500">Values last updated: <span id="updated-at">—</span></p>
     </section>
   </main>
 
@@ -161,8 +167,13 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Tabs logic -->
+  <!-- Tabs logic + last-updated date -->
   <script>
+    // Set "last updated" to today's date (or replace with a fixed string like '2025-09-23')
+    const UPDATED_AT = new Date().toISOString().slice(0,10);
+    const ua = document.getElementById('updated-at');
+    if (ua) ua.textContent = UPDATED_AT;
+
     const tabButtons = document.querySelectorAll('#tabs .tab-btn');
     const panels = {
       overview: document.getElementById('panel-overview'),
@@ -182,7 +193,7 @@
     showTab('overview');
   </script>
 
-  <!-- Your JSX tool (runs in browser via Babel) -->
+  <!-- Calculator (JSX run by Babel) -->
   <script type="text/babel">
     const {useMemo, useState} = React;
 
@@ -195,6 +206,7 @@
         analysisYears: 25,
 
         panelCostPerW: 1.2,
+        infrastructureCostPerW: 0.15,   // NEW: infrastructure/site/trench/mount ($/W)
         inverterCostPerKw: 150,
         onmPctOfCapex: 1.0,
 
@@ -215,7 +227,9 @@
         const r = inputs.discountRatePct/100;
         const crf = CRF(r, inputs.analysisYears);
 
-        const onGridCapex = inputs.pvSizeKw*1000*inputs.panelCostPerW + inputs.pvSizeKw*inputs.inverterCostPerKw;
+        // On-grid CAPEX includes Infrastructure $/W
+        const pvCostPerW = inputs.panelCostPerW + inputs.infrastructureCostPerW;       // NEW
+        const onGridCapex = inputs.pvSizeKw*1000*pvCostPerW + inputs.pvSizeKw*inputs.inverterCostPerKw; // UPDATED
         const onGridAnnualOnM = (inputs.onmPctOfCapex/100)*onGridCapex;
         const onGridAnnualized = onGridCapex*crf + onGridAnnualOnM;
         const lcoeOnGrid = onGridAnnualized / Math.max(inputs.annualProdKWh,1);
@@ -246,7 +260,7 @@
       const Field = ({label,suffix,step=0.01,min=0,value,onChange}) => (
         <label className="flex items-center justify-between gap-3 py-1">
           <span className="text-sm text-slate-600">{label}</span>
-          <input type="number" step={step} min={min} value={value}
+          <input type="number" step={step} min={min} value={Number.isFinite(value)?value:''}
             onChange={e=>onChange(parseFloat(e.target.value))}
             className="w-32 rounded-md border border-slate-300 px-2 py-1 text-right" />
           {suffix && <span className="w-16 text-xs text-slate-500">{suffix}</span>}
@@ -287,6 +301,7 @@
 
             <Card title="On-Grid Costs">
               <Field label="Installed Cost (Panels+BOS+Install)" suffix="$ / W" value={inputs.panelCostPerW} onChange={v=>set('panelCostPerW',v)} />
+              <Field label="Infrastructure (site/trench/mount)" suffix="$ / W" value={inputs.infrastructureCostPerW} onChange={v=>set('infrastructureCostPerW',v)} />
               <Field label="Inverter Reserve" suffix="$ / kW" value={inputs.inverterCostPerKw} onChange={v=>set('inverterCostPerKw',v)} />
               <Field label="O&M" suffix="% of CAPEX / yr" value={inputs.onmPctOfCapex} onChange={v=>set('onmPctOfCapex',v)} />
             </Card>
